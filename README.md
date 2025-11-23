@@ -1,5 +1,9 @@
 # GameBox 🎮
 
+> [!Note]
+>
+> Feel free to add your own games to this repository by submitting a pull request.
+
 **GameBox** is a collection of simple web-based mini-games that run entirely on the client side (no server required).  
 You can play directly in your browser—no installation needed!
 
