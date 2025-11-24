@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Clicker</title>
+    <style>
+        :root {
+            --bg-color: #1a1a2e;
+            --panel-bg: #16213e;
+            --text-color: #e94560;
+            --accent-color: #0f3460;
+            --neon-blue: #00fff5;
+            --neon-pink: #ff00ff;
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: white;
+            font-family: var(--font-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none; /* Prevent text selection on rapid clicks */
+        }
+
+        header {
+            width: 100%;
+            text-align: center;
+            padding: 20px 0;
+            background: linear-gradient(90deg, var(--accent-color), var(--panel-bg));
+            box-shadow: 0 4px 15px rgba(0, 255, 245, 0.2);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: white;
+            text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            width: 90%;
+            max-width: 1200px;
+            padding-bottom: 50px;
+        }
+
+        /* Game Area */
+        .game-area {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--panel-bg);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        #score {
+            font-size: 4rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 15px var(--neon-pink);
+            display: block;
+        }
+
+        .label {
+            font-size: 1.2rem;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .click-btn {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--accent-color), var(--bg-color));
+            border: 4px solid var(--neon-blue);
+            box-shadow: 0 0 30px var(--neon-blue), inset 0 0 20px var(--neon-blue);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            outline: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .click-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px var(--neon-blue), inset 0 0 10px var(--neon-blue);
+        }
+
+        .click-btn::after {
+            content: 'CLICK';
+            font-weight: bold;
+            text-shadow: 0 0 5px white;
+            pointer-events: none;
+        }
+
+        /* Shop Area */
+        .shop-area {
+            flex: 1;
+            min-width: 300px;
+            background: var(--panel-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .shop-area h2 {
+            margin-top: 0;
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .upgrade-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .upgrade-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .upgrade-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #ccc;
+        }
+
+        .upgrade-btn {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            min-width: 100px;
+        }
+
+        .upgrade-btn:hover:not(:disabled) {
+            background: var(--neon-blue);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        .upgrade-btn:disabled {
+            border-color: #555;
+            color: #555;
+            cursor: not-allowed;
+        }
+
+        /* Floating Text Animation */
+        .floating-text {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            text-shadow: 0 0 5px var(--neon-blue);
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-50px) scale(1.5);
+            }
+        }
+
+        /* Stats Panel */
+        .stats-panel {
+            width: 100%;
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+
+            #score {
+                font-size: 3rem;
+            }
+
+            .click-btn {
+                width: 160px;
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Neon Clicker</h1>
+    </header>
+
+    <div class="container">
+        <!-- Game Section -->
+        <div class="game-area">
+            <div class="score-container">
+                <span id="score">0</span>
+                <span class="label">Coins</span>
+            </div>
+            
+            <button id="clickBtn" class="click-btn"></button>
+
+            <div class="stats-panel">
+                <p>Click Power: <span id="clickPowerDisplay">1</span></p>
+                <p>Auto Coins/sec: <span id="autoClickDisplay">0</span></p>
+            </div>
+            
+            <button id="resetBtn" style="margin-top: 20px; background: transparent; border: 1px solid #555; color: #555; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Reset Game</button>
+        </div>
+
+        <!-- Shop Section -->
+        <div class="shop-area">
+            <h2>Upgrades</h2>
+            
+            <!-- Click Power Upgrade -->
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <h3>Click Booster</h3>
+                    <p>+1 Coin per click</p>
+                </div>
+                <button id="buyClickPower" class="upgrade-btn">
+                    <span id="clickPowerCost">10</span> Coins
+                </button>
+            </div>
+
+            <!-- Auto Clicker Upgrade -->
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <h3>Auto Bot</h3>
+                    <p>+1 Coin per second</p>
+                </div>
+                <button id="buyAutoClicker" class="upgrade-btn">
+                    <span id="autoClickerCost">50</span> Coins
+                </button>
+            </div>
+
+            <!-- Mega Booster -->
+             <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <h3>Mega Booster</h3>
+                    <p>+5 Coins per click</p>
+                </div>
+                <button id="buyMegaClick" class="upgrade-btn">
+                    <span id="megaClickCost">200</span> Coins
+                </button>
+            </div>
+
+            <!-- Factory -->
+            <div class="upgrade-item">
+                <div class="upgrade-info">
+                    <h3>Coin Factory</h3>
+                    <p>+10 Coins per second</p>
+                </div>
+                <button id="buyFactory" class="upgrade-btn">
+                    <span id="factoryCost">500</span> Coins
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let game = {
+            coins: 0,
+            clickPower: 1,
+            autoClick: 0,
+            costs: {
+                clickPower: 10,
+                autoClicker: 50,
+                megaClick: 200,
+                factory: 500
+            }
+        };
+
+        // DOM Elements
+        const scoreEl = document.getElementById('score');
+        const clickBtn = document.getElementById('clickBtn');
+        const clickPowerDisplay = document.getElementById('clickPowerDisplay');
+        const autoClickDisplay = document.getElementById('autoClickDisplay');
+        
+        const buyClickPowerBtn = document.getElementById('buyClickPower');
+        const clickPowerCostEl = document.getElementById('clickPowerCost');
+        
+        const buyAutoClickerBtn = document.getElementById('buyAutoClicker');
+        const autoClickerCostEl = document.getElementById('autoClickerCost');
+
+        const buyMegaClickBtn = document.getElementById('buyMegaClick');
+        const megaClickCostEl = document.getElementById('megaClickCost');
+
+        const buyFactoryBtn = document.getElementById('buyFactory');
+        const factoryCostEl = document.getElementById('factoryCost');
+
+        const resetBtn = document.getElementById('resetBtn');
+
+        // Load Game
+        function loadGame() {
+            const savedGame = localStorage.getItem('neonClickerSave');
+            if (savedGame) {
+                const parsed = JSON.parse(savedGame);
+                // Merge saved data with default structure to handle updates
+                game = { ...game, ...parsed };
+                // Ensure costs object exists if old save
+                if(!game.costs) {
+                     game.costs = {
+                        clickPower: 10,
+                        autoClicker: 50,
+                        megaClick: 200,
+                        factory: 500
+                    };
+                }
+            }
+            updateUI();
+        }
+
+        // Save Game
+        function saveGame() {
+            localStorage.setItem('neonClickerSave', JSON.stringify(game));
+        }
+
+        // Update UI
+        function updateUI() {
+            scoreEl.textContent = Math.floor(game.coins);
+            clickPowerDisplay.textContent = game.clickPower;
+            autoClickDisplay.textContent = game.autoClick;
+
+            // Update Costs
+            clickPowerCostEl.textContent = Math.floor(game.costs.clickPower);
+            autoClickerCostEl.textContent = Math.floor(game.costs.autoClicker);
+            megaClickCostEl.textContent = Math.floor(game.costs.megaClick);
+            factoryCostEl.textContent = Math.floor(game.costs.factory);
+
+            // Enable/Disable Buttons
+            buyClickPowerBtn.disabled = game.coins < game.costs.clickPower;
+            buyAutoClickerBtn.disabled = game.coins < game.costs.autoClicker;
+            buyMegaClickBtn.disabled = game.coins < game.costs.megaClick;
+            buyFactoryBtn.disabled = game.coins < game.costs.factory;
+        }
+
+        // Click Event
+        clickBtn.addEventListener('click', (e) => {
+            game.coins += game.clickPower;
+            
+            // Create floating text
+            createFloatingText(e.clientX, e.clientY, `+${game.clickPower}`);
+            
+            updateUI();
+            saveGame();
+        });
+
+        function createFloatingText(x, y, text) {
+            const el = document.createElement('div');
+            el.classList.add('floating-text');
+            el.textContent = text;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            document.body.appendChild(el);
+            
+            setTimeout(() => {
+                el.remove();
+            }, 1000);
+        }
+
+        // Buy Upgrades
+        function buyUpgrade(type) {
+            if (type === 'clickPower') {
+                if (game.coins >= game.costs.clickPower) {
+                    game.coins -= game.costs.clickPower;
+                    game.clickPower += 1;
+                    game.costs.clickPower *= 1.5; // Exponential cost
+                }
+            } else if (type === 'autoClicker') {
+                if (game.coins >= game.costs.autoClicker) {
+                    game.coins -= game.costs.autoClicker;
+                    game.autoClick += 1;
+                    game.costs.autoClicker *= 1.5;
+                }
+            } else if (type === 'megaClick') {
+                 if (game.coins >= game.costs.megaClick) {
+                    game.coins -= game.costs.megaClick;
+                    game.clickPower += 5;
+                    game.costs.megaClick *= 1.6;
+                }
+            } else if (type === 'factory') {
+                 if (game.coins >= game.costs.factory) {
+                    game.coins -= game.costs.factory;
+                    game.autoClick += 10;
+                    game.costs.factory *= 1.6;
+                }
+            }
+            updateUI();
+            saveGame();
+        }
+
+        buyClickPowerBtn.addEventListener('click', () => buyUpgrade('clickPower'));
+        buyAutoClickerBtn.addEventListener('click', () => buyUpgrade('autoClicker'));
+        buyMegaClickBtn.addEventListener('click', () => buyUpgrade('megaClick'));
+        buyFactoryBtn.addEventListener('click', () => buyUpgrade('factory'));
+
+        // Auto Click Loop
+        setInterval(() => {
+            if (game.autoClick > 0) {
+                game.coins += game.autoClick;
+                updateUI();
+                saveGame();
+            }
+        }, 1000);
+
+        // Reset Game
+        resetBtn.addEventListener('click', () => {
+            if(confirm("Are you sure you want to reset your progress?")) {
+                localStorage.removeItem('neonClickerSave');
+                location.reload();
+            }
+        });
+
+        // Initialize
+        loadGame();
+
+    </script>
+</body>
+</html>
